@@ -37,7 +37,8 @@ steps:
       echo "Change permission for entrypoint.bash"
       chmod +x entrypoint.bash
       echo "Running Terraform init"
-      terraform init ; terraform ${_TF_ACTION}
+      terraform init
+      if [ $_TF_ACTION != 'plan']; then terraform plan ; else terraform apply -auto-approve ; fi
 
 substitutions:
   _TERRAFORM_VERSION: '0.13.6' # default value
