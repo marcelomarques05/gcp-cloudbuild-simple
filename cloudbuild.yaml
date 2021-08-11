@@ -38,7 +38,7 @@ steps:
       chmod +x entrypoint.bash
       echo "Running Terraform init"
       terraform init
-      if [ $_TF_ACTION != 'plan']
+      if [ $_TF_ACTION != 'plan'];
       then 
         terraform plan
       else 
