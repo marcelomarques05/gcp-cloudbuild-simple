@@ -8,7 +8,7 @@ steps:
   name: 'gcr.io/cloud-builders/docker'
   args: [
     'build',
-    '--tag=gcr.io/${PROJECT_ID}/terraform',
+    '--tag=gcr.io/${PROJECT_ID}/terraform:latest',
     '--build-arg=TERRAFORM_VERSION=${_TERRAFORM_VERSION}',
     '--build-arg=TERRAFORM_VERSION_SHA256SUM=${_TERRAFORM_VERSION_SHA256SUM}',
     '--build-arg=TERRAFORM_VALIDATOR_RELEASE=${_TERRAFORM_VALIDATOR_RELEASE}',
@@ -17,7 +17,7 @@ steps:
     ]
 
 - id: 'Enabling APIs'
-  name: 'gcr.io/${PROJECT_ID}/terraform'
+  name: 'gcr.io/${PROJECT_ID}/terraform:latest'
   entrypoint: /bin/bash
   args:
   - -c
@@ -25,7 +25,7 @@ steps:
      gcloud services enable compute.googleapis.com
 
 - id: 'Executing Terraform Init'
-  name: 'gcr.io/${PROJECT_ID}/terraform'
+  name: 'gcr.io/${PROJECT_ID}/terraform:latest'
   entrypoint: /bin/bash
   args:
   - -c
@@ -35,13 +35,13 @@ steps:
       echo "Update backend bucket"
       sed -i 's\_BUCKET_STATE_\${_BUCKET_STATE}\g' backend.tf
       echo "Change permission for entrypoint.bash"
-      chmod +x entrypoint.bash
+      chmod +x ./entrypoint.bash
       echo "Running Terraform init"
       terraform init
-      if [ $_TF_ACTION != 'plan'];
-      then 
+      if [ $_TF_ACTION = 'plan' ];
+      then
         terraform plan
-      else 
+      else
         terraform apply -auto-approve
       fi
 
@@ -49,5 +49,5 @@ substitutions:
   _TERRAFORM_VERSION: '0.13.6' # default value
   _TERRAFORM_VERSION_SHA256SUM: '55f2db00b05675026be9c898bdd3e8230ff0c5c78dd12d743ca38032092abfc9'
   _TERRAFORM_VALIDATOR_RELEASE: '2021-03-22'
-    
+          
 images: ['gcr.io/${PROJECT_ID}/terraform']
